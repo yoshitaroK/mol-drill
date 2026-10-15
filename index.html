@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="高校1年・化学基礎の物質量(mol)計算を、易・中・難の3段階の四択で練習できるドリル。">
+<title>モル計算ドリル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+<style>
+/* Layout: タブレット学習教材風。空色の地に白い問題カード、2×2の大きな四択ボタン、右下にフラスコのキャラクター。明るい単一テーマ */
+:root {
+  color-scheme: light;
+  --sky: #dff3ff;
+  --sky-deep: #8fd3ff;
+  --card: #ffffff;
+  --ink: #23334a;
+  --muted: #6a7a90;
+  --blue: #2f8cff;  --blue-d: #1a63c4;
+  --red: #ff5a5f;   --red-d: #d63a40;
+  --green: #22c07a; --green-d: #13925a;
+  --orange: #ffa62b; --orange-d: #d97f0b;
+  --yellow: #ffe04d; --yellow-d: #e2b700;
+  --f: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; font-family: var(--f); color: var(--ink); font-weight: 500; font-size: 16px; line-height: 1.6;
+  background-color: var(--sky);
+  background-image: radial-gradient(circle at 1px 1px, rgba(47,140,255,.12) 2px, transparent 2.5px);
+  background-size: 26px 26px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px 40px;
+}
+.app { max-width: 760px; margin: 0 auto; display: grid; gap: 14px; }
+
+/* 上部バー */
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.logo {
+  font-weight: 800; font-size: 22px; color: #fff; background: var(--blue); padding: 6px 16px 8px; border-radius: 999px;
+  box-shadow: 0 4px 0 var(--blue-d); letter-spacing: .03em; white-space: nowrap;
+}
+.logo small { font-size: 13px; background: var(--yellow); color: var(--ink); border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 3px; }
+.coins { margin-left: auto; display: flex; align-items: center; gap: 6px; background: #fff; border-radius: 999px; padding: 4px 14px 4px 6px; box-shadow: 0 3px 0 rgba(35,51,74,.12); font-weight: 800; }
+.coin { width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); border: 3px solid var(--yellow-d); display: grid; place-items: center; font-size: 13px; color: var(--orange-d); }
+
+/* 進み具合 */
+.progress { display: flex; gap: 6px; }
+.progress span { flex: 1; height: 12px; border-radius: 999px; background: #fff; box-shadow: inset 0 2px 0 rgba(35,51,74,.08); }
+.progress span.ok { background: var(--red); }
+.progress span.ng { background: var(--blue); }
+.progress span.now { background: var(--yellow); animation: blink 1s ease-in-out infinite alternate; }
+
+/* 問題カード */
+.card { background: var(--card); border-radius: 26px; padding: 20px 22px 22px; box-shadow: 0 6px 0 rgba(35,51,74,.10); display: grid; gap: 16px; position: relative; }
+.qhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.qnum { background: var(--orange); color: #fff; font-weight: 800; border-radius: 12px; padding: 2px 12px; box-shadow: 0 3px 0 var(--orange-d); }
+.tag { font-size: 13px; font-weight: 700; color: var(--blue-d); background: #e6f2ff; border-radius: 999px; padding: 2px 12px; }
+.question { font-size: clamp(18px, 3.6vw, 22px); font-weight: 700; line-height: 1.75; margin: 0; text-wrap: pretty; }
+.question .hl { background: linear-gradient(transparent 60%, var(--yellow) 60%); padding: 0 2px; white-space: nowrap; }
+.formula { display: inline-block; font-weight: 800; color: var(--blue-d); }
+sup { font-size: .62em; }
+
+/* 四択 */
+.choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 460px) { .choices { grid-template-columns: minmax(0, 1fr); } }
+.choice {
+  font: inherit; font-weight: 800; font-size: 21px; color: var(--ink); cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 10px 14px;
+  background: #fff; border: 3px solid var(--c); border-radius: 20px; box-shadow: 0 6px 0 var(--cd);
+  transition: transform .08s, box-shadow .08s;
+  font-variant-numeric: tabular-nums;
+}
+.choice:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 0 var(--cd); }
+.choice:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
+.choice:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+.choice .no { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-size: 18px; }
+.choice .val { min-width: 0; overflow-wrap: anywhere; }
+.choice .u { font-size: 15px; color: var(--muted); margin-left: 4px; }
+.choice:nth-child(1) { --c: var(--red); --cd: var(--red-d); }
+.choice:nth-child(2) { --c: var(--blue); --cd: var(--blue-d); }
+.choice:nth-child(3) { --c: var(--green); --cd: var(--green-d); }
+.choice:nth-child(4) { --c: var(--orange); --cd: var(--orange-d); }
+.choice:disabled { cursor: default; }
+.choice.dim { opacity: .38; }
+.choice.right { background: #fff6d6; }
+.choice.picked-wrong { background: #eef2f7; }
+
+/* ○ × の大きなマーク */
+.mark { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.mark svg { width: min(62%, 300px); height: auto; filter: drop-shadow(0 4px 0 rgba(0,0,0,.08)); }
+.mark .word { position: absolute; bottom: 14%; font-size: 34px; font-weight: 800; letter-spacing: .1em; -webkit-text-stroke: 7px #fff; paint-order: stroke fill; }
+.mark.ok .word { color: var(--red); }
+.mark.ng .word { color: var(--blue); }
+@media (prefers-reduced-motion: no-preference) {
+  .mark svg { animation: stamp .35s cubic-bezier(.3,1.6,.5,1) both; }
+  .mark .draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw .45s ease-out .05s forwards; }
+  .mark { animation: fadeout .4s ease-in 1.1s forwards; }
+  .explain { animation: rise .3s ease-out; }
+}
+@media (prefers-reduced-motion: reduce) { .mark { display: none; } }
+@keyframes stamp { from { transform: scale(.4); } to { transform: none; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fadeout { to { opacity: 0; } }
+@keyframes rise { from { transform: translateY(8px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes blink { to { opacity: .45; } }
+
+/* とき方 */
+.explain { background: #fffbe6; border: 3px dashed var(--yellow-d); border-radius: 20px; padding: 14px 18px; display: grid; gap: 8px; }
+.explain h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--orange-d); }
+.explain .sub { font-size: 13px; font-weight: 800; color: #fff; background: var(--orange); border-radius: 8px; padding: 0 10px; justify-self: start; }
+.explain .pt { margin: 0; font-size: 15px; line-height: 1.75; }
+.miss { background: #eaf3ff; border-radius: 14px; padding: 10px 14px; font-size: 15px; line-height: 1.7; }
+.miss b { color: var(--blue-d); }
+.review .why { font-size: 13px; color: var(--muted); }
+/* まとめノート */
+.note { background: var(--card); border-radius: 26px; padding: 18px 20px; box-shadow: 0 6px 0 rgba(35,51,74,.10); display: grid; gap: 12px; }
+.note summary { cursor: pointer; font-weight: 800; font-size: 18px; color: var(--blue-d); }
+.note summary:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; border-radius: 8px; }
+.hub { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto auto auto; gap: 8px; align-items: center; justify-items: center; text-align: center; margin-top: 12px; }
+.hub .q { border-radius: 16px; padding: 8px 12px; font-weight: 800; background: #f1f8ff; border: 3px solid var(--sky-deep); width: 100%; max-width: 200px; }
+.hub .q small { display: block; font-size: 12px; color: var(--muted); font-weight: 700; }
+.hub .c { background: var(--yellow); border-color: var(--yellow-d); font-size: 20px; }
+.hub .ar { font-size: 13px; font-weight: 800; color: var(--orange-d); line-height: 1.4; }
+.note ul { margin: 12px 0 0; padding-left: 1.3em; display: grid; gap: 6px; font-size: 15px; line-height: 1.7; }
+.explain ol { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: 15.5px; }
+.explain .calc { font-weight: 800; color: var(--ink); white-space: nowrap; }
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
+.btn {
+  font: inherit; font-weight: 800; font-size: 18px; border: none; border-radius: 999px; padding: 10px 28px; cursor: pointer;
+  background: var(--green); color: #fff; box-shadow: 0 5px 0 var(--green-d);
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--green-d); }
+.btn:focus-visible, .chip:focus-visible, .hintbtn:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+.btn.sub { background: #fff; color: var(--blue-d); box-shadow: 0 5px 0 rgba(35,51,74,.15); }
+
+/* キャラクター */
+.buddy { display: flex; align-items: flex-end; gap: 10px; }
+.buddy svg { flex: none; width: 74px; height: auto; }
+.bubble { position: relative; background: #fff; border-radius: 18px; padding: 10px 14px; font-size: 15px; font-weight: 700; box-shadow: 0 4px 0 rgba(35,51,74,.10); min-width: 0; flex: 1; }
+.bubble::before { content: ""; position: absolute; left: -10px; bottom: 16px; border: 8px solid transparent; border-right: 12px solid #fff; border-left: 0; }
+.hintbtn { font: inherit; font-weight: 800; font-size: 14px; border: none; background: var(--yellow); color: var(--ink); border-radius: 999px; padding: 4px 14px; cursor: pointer; box-shadow: 0 3px 0 var(--yellow-d); margin-top: 6px; }
+
+/* 難易度 */
+.levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.lv { font: inherit; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 18px; background: #fff; border: 3px solid #c9dbea; color: var(--muted); min-width: 0; }
+.lv .k { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; font-weight: 800; color: #fff; background: var(--c); }
+.lv .d { font-size: 12px; font-weight: 700; line-height: 1.4; min-width: 0; }
+.lv-easy { --c: var(--green); --cd: var(--green-d); }
+.lv-mid { --c: var(--orange); --cd: var(--orange-d); }
+.lv-hard { --c: var(--red); --cd: var(--red-d); }
+.lv[aria-pressed="true"] { border-color: var(--c); color: var(--ink); box-shadow: 0 5px 0 var(--cd); }
+.lv:focus-visible { outline: 4px solid var(--yellow); outline-offset: 3px; }
+@media (max-width: 520px) { .lv .d { display: none; } .lv { justify-content: center; } }
+.lvbadge { font-size: 13px; font-weight: 800; color: #fff; border-radius: 8px; padding: 1px 9px; background: var(--c); }
+/* 分野えらび */
+.cats { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-weight: 700; font-size: 14px; border-radius: 999px; padding: 6px 14px; cursor: pointer; background: #fff; color: var(--muted); border: 2px solid #c9dbea; }
+.chip[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 3px 0 var(--blue-d); }
+.label { font-size: 13px; font-weight: 800; color: var(--blue-d); }
+
+/* 結果 */
+.result { text-align: center; justify-items: center; }
+.result h2 { margin: 0; font-size: 28px; font-weight: 800; }
+.stars { display: flex; gap: 6px; }
+.stars svg { width: 54px; height: 54px; }
+.score { font-size: 56px; font-weight: 800; color: var(--red); line-height: 1; font-variant-numeric: tabular-nums; }
+.score small { font-size: 22px; color: var(--muted); }
+.review { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; text-align: left; font-size: 14.5px; }
+.review li { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 8px; align-items: start; background: #f4f9ff; border-radius: 12px; padding: 8px 12px; }
+.review .m { font-weight: 800; font-size: 18px; line-height: 1.3; }
+.review .m.ok { color: var(--red); }
+.review .m.ng { color: var(--blue); }
+.consts { font-size: 13px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <div class="logo">モル計算ドリル<small>化学基礎</small></div>
+    <div class="coins" title="これまでに集めたコイン"><span class="coin">★</span><span id="coins">0</span></div>
+  </div>
+
+  <div>
+    <div class="label">難易度をえらぼう</div>
+    <div class="levels" id="levels" role="group" aria-label="難易度"></div>
+  </div>
+
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <main class="card" id="stage"></main>
+
+  <div class="buddy">
+    <svg viewBox="0 0 80 96" aria-hidden="true">
+      <rect x="30" y="4" width="20" height="10" rx="3" fill="#8fd3ff" stroke="#23334a" stroke-width="3"/>
+      <path d="M32 14 V34 L10 74 Q6 88 20 90 H60 Q74 88 70 74 L48 34 V14 Z" fill="#ffffff" stroke="#23334a" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M19 60 H61 L69 75 Q72 86 60 87 H20 Q8 86 11 75 Z" fill="#22c07a"/>
+      <circle cx="28" cy="78" r="3" fill="#ffffff" opacity=".7"/><circle cx="52" cy="70" r="2" fill="#ffffff" opacity=".7"/>
+      <circle id="eyeL" cx="32" cy="48" r="4" fill="#23334a"/><circle id="eyeR" cx="48" cy="48" r="4" fill="#23334a"/>
+      <circle cx="25" cy="55" r="3.5" fill="#ff9aa0"/><circle cx="55" cy="55" r="3.5" fill="#ff9aa0"/>
+      <path id="mouth" d="M35 55 Q40 60 45 55" fill="none" stroke="#23334a" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div class="bubble"><div id="say"></div></div>
+  </div>
+
+  <details class="note" id="note">
+    <summary>まとめノート:mol を真ん中に考えよう</summary>
+    <div class="hub" role="img" aria-label="物質量を中心に、質量・粒子の数・気体の体積・モル濃度が掛け算と割り算でつながる図">
+      <span></span><div class="q">溶液の体積 L<small>× モル濃度 ↓ ↑ ÷ 体積(L)</small></div><span></span>
+      <div class="q">質量 g</div>
+      <div class="q c">物質量 mol</div>
+      <div class="q">粒子の数 個</div>
+      <span class="ar">← × モル質量<br>÷ モル質量 →</span>
+      <div class="q">気体の体積 L<small>(標準状態)↑ ÷ 22.4 ・ × 22.4 ↓</small></div>
+      <span class="ar">× 6.0×10²³ →<br>← ÷ 6.0×10²³</span>
+    </div>
+    <ul>
+      <li><b>モル質量</b>:原子量・分子量・式量に g/mol をつけたもの。例 H₂O = 1.0×2 + 16 = 18 g/mol</li>
+      <li><b>アボガドロ定数</b>:6.0×10²³ /mol。1 mol の中にある粒子の数</li>
+      <li><b>モル体積</b>:標準状態(0 ℃、1.013×10⁵ Pa)の気体は種類に関係なく 22.4 L/mol</li>
+      <li><b>モル濃度</b>:溶液 1 L 中の溶質の物質量(mol/L)。mL は ÷1000 して L に直す</li>
+      <li><b>原子の数</b>:化学式の右下の数字 = 1 個の分子にふくまれるその原子の数</li>
+    </ul>
+  </details>
+
+  <p class="consts">原子量 H=1.0 C=12 N=14 O=16 Na=23 Mg=24 Al=27 S=32 Cl=35.5 K=39 Ca=40 Fe=56 Cu=64 ・ アボガドロ定数 6.0×10<sup>23</sup>/mol ・ 標準状態の気体 1 mol = 22.4 L</p>
+</div>
+
+<script>
+(() => {
+  const NA = 6.0e23, VM = 22.4, ROUND = 10;
+  const ATOMS = { H: 1.0, C: 12, N: 14, O: 16, Na: 23, Mg: 24, Al: 27, S: 32, Cl: 35.5, K: 39, Ca: 40, Fe: 56, Cu: 64 };
+  const SUBS = [
+    { f: "H₂O", name: "水", comp: { H: 2, O: 1 } },
+    { f: "CO₂", name: "二酸化炭素", comp: { C: 1, O: 2 }, gas: true },
+    { f: "O₂", name: "酸素", comp: { O: 2 }, gas: true },
+    { f: "H₂", name: "水素", comp: { H: 2 }, gas: true },
+    { f: "N₂", name: "窒素", comp: { N: 2 }, gas: true },
+    { f: "CH₄", name: "メタン", comp: { C: 1, H: 4 }, gas: true },
+    { f: "NH₃", name: "アンモニア", comp: { N: 1, H: 3 }, gas: true },
+    { f: "HCl", name: "塩化水素", comp: { H: 1, Cl: 1 }, gas: true },
+    { f: "NaCl", name: "塩化ナトリウム", comp: { Na: 1, Cl: 1 }, solute: true, ionic: true },
+    { f: "NaOH", name: "水酸化ナトリウム", comp: { Na: 1, O: 1, H: 1 }, solute: true, ionic: true },
+    { f: "H₂SO₄", name: "硫酸", comp: { H: 2, S: 1, O: 4 }, solute: true },
+    { f: "C₆H₁₂O₆", name: "グルコース", comp: { C: 6, H: 12, O: 6 }, solute: true },
+    { f: "KCl", name: "塩化カリウム", comp: { K: 1, Cl: 1 }, solute: true, ionic: true },
+    { f: "CaCO₃", name: "炭酸カルシウム", comp: { Ca: 1, C: 1, O: 3 }, ionic: true },
+    { f: "C₂H₅OH", name: "エタノール", comp: { C: 2, H: 6, O: 1 } },
+    { f: "Fe", name: "鉄", comp: { Fe: 1 }, metal: true },
+    { f: "Cu", name: "銅", comp: { Cu: 1 }, metal: true },
+    { f: "Al", name: "アルミニウム", comp: { Al: 1 }, metal: true },
+    { f: "Mg", name: "マグネシウム", comp: { Mg: 1 }, metal: true },
+  ];
+  SUBS.forEach(s => { s.M = round(Object.entries(s.comp).reduce((a, [e, k]) => a + ATOMS[e] * k, 0), 6); });
+  const elName = { H: "水素", C: "炭素", N: "窒素", O: "酸素", S: "硫黄", Cl: "塩素" };
+
+
+  function round(x, d = 3) { const p = 10 ** d; return Math.round(x * p) / p; }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function num(x) { return String(parseFloat(x.toPrecision(3))); }
+  function sciParts(x) { let e = Math.floor(Math.log10(Math.abs(x))); let m = parseFloat((x / 10 ** e).toPrecision(2)); if (m >= 10) { m /= 10; e += 1; } return [m, e]; }
+  function sci(x) { const [m, e] = sciParts(x); return `${m.toFixed(1)}×10<sup>${e}</sup>`; }
+  function sciPlain(x) { const [m, e] = sciParts(x); return `${m.toFixed(1)}×10^${e}`; }
+  const fmtN = n => n < 0.1 ? n.toFixed(3) : n < 1 ? n.toFixed(2) : n.toFixed(1);
+  const F = s => `<span class="formula">${s.f}</span>`;
+  const H = t => `<span class="hl">${t}</span>`;
+  const C = t => `<span class="calc">${t}</span>`;
+  function Mcalc(s) { return Object.entries(s.comp).map(([e, k]) => k > 1 ? `${ATOMS[e]}×${k}` : `${ATOMS[e]}`).join(" + ") + ` = ${num(s.M)}`; }
+  const LEVELS = {
+    easy: { label: "易", note: "1ステップの基本(質量・粒子の数・気体の体積)", cats: ["mass", "particle", "gas"], ns: [0.10, 0.20, 0.25, 0.50, 1.5, 2.0, 3.0],
+            subs: ["H₂O", "CO₂", "O₂", "H₂", "N₂", "CH₄", "NaCl", "Fe", "Cu", "Mg"] },
+    mid:  { label: "中", note: "基本+原子の数・モル濃度", cats: ["mass", "particle", "gas", "atom", "conc"], ns: [0.10, 0.20, 0.25, 0.40, 0.50, 1.5, 2.0, 2.5, 3.0, 0.050, 0.30, 1.2] },
+    hard: { label: "難", note: "2ステップ変換・モル濃度・原子の数(細かい数値)", cats: ["two", "conc", "atom"], ns: [0.15, 0.35, 0.45, 0.60, 0.75, 0.040, 0.080, 0.12, 1.6, 2.4, 3.5] },
+  };
+  let level = "mid", NS = LEVELS.mid.ns;
+  function pool() { const L = LEVELS[level]; return L.subs ? SUBS.filter(s => L.subs.includes(s.f)) : SUBS; }
+
+  // 化学式の右下の数字を無視したモル質量(よくあるまちがい)
+  const Mnosub = s => round(Object.keys(s.comp).reduce((a, e) => a + ATOMS[e], 0), 6);
+  const W = {
+    noSub: "化学式の右下の数字(原子の数)を掛け忘れて、モル質量をまちがえているよ。",
+    digit: "6.0×10²³ の計算で桁(10 の指数)がずれているよ。仮数部の掛け算・割り算をていねいに。",
+    stop: "途中の物質量(mol)で止まっているよ。問われている単位まで変換しよう。",
+  };
+  const POINT = {
+    mass: "物質量(mol)は、粒子を 6.0×10²³ 個ずつひとまとめにした数え方。1 mol あたりの質量(モル質量)は、原子量・分子量・式量に g/mol をつけた値になるよ。だから「g ÷ モル質量 = mol」「mol × モル質量 = g」。",
+    particle: "1 mol = 6.0×10²³ 個(アボガドロ定数)。mol と個数は「× 6.0×10²³」「÷ 6.0×10²³」で行き来できるよ。",
+    ionic: "NaCl のようにイオンからできた物質には分子がないので、組成式(NaCl)1 つ分を 1 個の粒子として数えるよ。",
+    gas: "同じ温度・圧力なら、気体の種類に関係なく同じ物質量の気体は同じ体積(アボガドロの法則)。標準状態(0 ℃、1.013×10⁵ Pa)では 1 mol = 22.4 L。だから気体の体積の計算にはモル質量は使わないよ。",
+    two: "g・個・L の間を直接変換する式はないよ。どれも一度「物質量(mol)」に直してから、目的の量に変えるのが基本。下の「まとめノート」の図で、mol を真ん中にして考えよう。",
+    conc: "モル濃度(mol/L)は、溶液 1 L にとけている溶質の物質量。割るのは水(溶媒)の体積ではなく、できあがった溶液の体積。mL は 1000 で割って L に直してから使うよ。",
+    atom: "化学式の右下の数字は、分子 1 個(組成式 1 つ)にふくまれる原子の数。分子 1 mol の中には、その原子が右下の数字と同じ mol だけふくまれるよ。",
+  };
+
+  // 各問題: kind, html, unit, sci, answer, wrong[[値, まちがいの説明]], steps[], hint, point
+  const GEN = {
+    mass() {
+      const s = pick(pool()), n = pick(NS), m = round(n * s.M, 3), M0 = Mnosub(s);
+      if (Math.random() < .5) return {
+        sub: s, kind: "質量 → 物質量", point: POINT.mass,
+        html: `${s.name} ${F(s)} ${H(num(m) + " g")} の物質量は何 mol？`,
+        unit: "mol", answer: n,
+        wrong: [[m * s.M, "質量にモル質量を掛けてしまっているよ。g → mol は「÷ モル質量」。"], [s.M / m, "割る順番が逆だよ。質量 ÷ モル質量 の順。"], [m / M0, W.noSub]],
+        hint: `物質量 = 質量 ÷ モル質量 だよ。まず ${s.f} のモル質量を出そう！`,
+        steps: [`${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${num(m)} ÷ ${num(s.M)} = ${fmtN(n)} mol`)],
+      };
+      return {
+        sub: s, kind: "物質量 → 質量", point: POINT.mass,
+        html: `${s.name} ${F(s)} ${H(fmtN(n) + " mol")} の質量は何 g？`,
+        unit: "g", answer: m,
+        wrong: [[n / s.M, "モル質量で割ってしまっているよ。mol → g は「× モル質量」。"], [s.M / n, "モル質量を物質量で割っているよ。mol → g は「× モル質量」。"], [n * M0, W.noSub]],
+        hint: `質量 = 物質量 × モル質量。1 mol あたり何 g かを考えよう！`,
+        steps: [`${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${fmtN(n)} × ${num(s.M)} = ${num(m)} g`)],
+      };
+    },
+    particle() {
+      const s = pick(pool()), n = pick(NS), N = n * NA;
+      const what = s.metal ? "原子" : s.ionic ? "粒子(組成式の単位)" : "分子";
+      const point = POINT.particle + (s.ionic ? "<br>" + POINT.ionic : "");
+      if (Math.random() < .5) return {
+        sub: s, kind: "物質量 → 粒子の数", point,
+        html: `${s.name} ${F(s)} ${H(fmtN(n) + " mol")} にふくまれる${what}は何個？`,
+        unit: "個", sci: true, answer: N,
+        wrong: [[N * 10, W.digit], [N / 10, W.digit], [n * s.M * NA, "モル質量は使わないよ。粒子の数は物質量 × 6.0×10²³ だけで求まる。"]],
+        hint: "1 mol は 6.0×10²³ 個の集まり。物質量にそれを掛けよう！",
+        steps: [C(`${fmtN(n)} × 6.0×10<sup>23</sup> = ${sci(N)} 個`), "答えの仮数部が 10 以上・1 未満になったら、10 の指数を調整しよう"],
+      };
+      return {
+        sub: s, kind: "粒子の数 → 物質量", point,
+        html: `${H(sci(N) + " 個")}の${what}からなる${s.name} ${F(s)} の物質量は何 mol？`,
+        unit: "mol", answer: n,
+        wrong: [[n * 10, W.digit], [n / 10, W.digit], [n * s.M, "モル質量を掛けると質量(g)になってしまうよ。問われているのは mol。"]],
+        hint: "粒子の数を 6.0×10²³ で割れば mol になるよ！",
+        steps: [C(`${sci(N)} ÷ 6.0×10<sup>23</sup> = ${fmtN(n)} mol`), "10<sup>23</sup> ÷ 10<sup>23</sup> = 1 なので、仮数部どうしを割ればよい"],
+      };
+    },
+    gas() {
+      const s = pick(pool().filter(x => x.gas)), n = pick(NS), V = round(n * VM, 4);
+      if (Math.random() < .5) return {
+        sub: s, kind: "物質量 → 体積", point: POINT.gas,
+        html: `標準状態で、${s.name} ${F(s)} ${H(fmtN(n) + " mol")} の体積は何 L？`,
+        unit: "L", answer: V,
+        wrong: [[n / VM, "22.4 で割ってしまっているよ。mol → L は「× 22.4」。"], [n * s.M, "モル質量を掛けると質量(g)になるよ。気体の体積はモル質量を使わない。"], [V * 2, "1 mol = 22.4 L を使えているか確認しよう。2 倍になっているよ。"]],
+        hint: "標準状態の気体は、種類に関係なく 1 mol = 22.4 L！",
+        steps: [C(`${fmtN(n)} × 22.4 = ${num(V)} L`), "気体の種類(モル質量)は使わない"],
+      };
+      return {
+        sub: s, kind: "体積 → 物質量", point: POINT.gas,
+        html: `標準状態で ${H(num(V) + " L")} の${s.name} ${F(s)} は何 mol？`,
+        unit: "mol", answer: n,
+        wrong: [[V * VM, "22.4 を掛けてしまっているよ。L → mol は「÷ 22.4」。"], [V / s.M, "モル質量で割っているよ。体積を mol に直すときは 22.4 L/mol で割る。"], [n * 2, "22.4 の半分(11.2)で割っていないかな？ 1 mol = 22.4 L だよ。"]],
+        hint: "体積を 22.4 L/mol で割ろう！",
+        steps: [C(`${num(V)} ÷ 22.4 = ${fmtN(n)} mol`)],
+      };
+    },
+    two() {
+      const r = Math.random();
+      if (r < .5) {
+        const s = pick(pool().filter(x => x.gas)), n = pick(NS), m = round(n * s.M, 3), V = round(n * VM, 4);
+        if (Math.random() < .5) return {
+          sub: s, kind: "質量 → 体積", point: POINT.two,
+          html: `${s.name} ${F(s)} ${H(num(m) + " g")} は、標準状態で何 L？`,
+          unit: "L", answer: V,
+          wrong: [[m * VM, "質量(g)を mol に直さずに 22.4 を掛けているよ。先に ÷ モル質量。"], [n, W.stop], [m / Mnosub(s) * VM, W.noSub]],
+          hint: "① 質量 → mol(÷モル質量)② mol → L(×22.4)の 2 ステップ！",
+          steps: [`${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${num(m)} ÷ ${num(s.M)} = ${fmtN(n)} mol`), C(`${fmtN(n)} × 22.4 = ${num(V)} L`)],
+        };
+        return {
+          sub: s, kind: "体積 → 質量", point: POINT.two,
+          html: `標準状態で ${H(num(V) + " L")} の${s.name} ${F(s)} は何 g？`,
+          unit: "g", answer: m,
+          wrong: [[V * s.M, "体積(L)を mol に直さずにモル質量を掛けているよ。先に ÷ 22.4。"], [n, W.stop], [n * Mnosub(s), W.noSub]],
+          hint: "① L → mol(÷22.4)② mol → g(×モル質量)の 2 ステップ！",
+          steps: [C(`${num(V)} ÷ 22.4 = ${fmtN(n)} mol`), `${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${fmtN(n)} × ${num(s.M)} = ${num(m)} g`)],
+        };
+      }
+      const s = pick(pool().filter(x => !x.ionic)), n = pick(NS), m = round(n * s.M, 3), N = n * NA;
+      const what = s.metal ? "原子" : "分子";
+      if (r < .75) return {
+        sub: s, kind: "質量 → 粒子の数", point: POINT.two,
+        html: `${s.name} ${F(s)} ${H(num(m) + " g")} にふくまれる${what}は何個？`,
+        unit: "個", sci: true, answer: N,
+        wrong: [[m * NA, "質量(g)を mol に直さずに 6.0×10²³ を掛けているよ。先に ÷ モル質量。"], [s.M * NA, "これは 1 mol 分の粒子の数 × モル質量。g → mol の割り算が抜けているよ。"], [N * 10, W.digit]],
+        hint: "① g → mol(÷モル質量)② mol → 個(×6.0×10²³)！",
+        steps: [`${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${num(m)} ÷ ${num(s.M)} = ${fmtN(n)} mol`), C(`${fmtN(n)} × 6.0×10<sup>23</sup> = ${sci(N)} 個`)],
+      };
+      return {
+        sub: s, kind: "粒子の数 → 質量", point: POINT.two,
+        html: `${H(sci(N) + " 個")}の${what}からなる${s.name} ${F(s)} は何 g？`,
+        unit: "g", answer: m,
+        wrong: [[n, W.stop], [m * 10, W.digit], [m / 10, W.digit]],
+        hint: "① 個 → mol(÷6.0×10²³)② mol → g(×モル質量)！",
+        steps: [C(`${sci(N)} ÷ 6.0×10<sup>23</sup> = ${fmtN(n)} mol`), `${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${fmtN(n)} × ${num(s.M)} = ${num(m)} g`)],
+      };
+    },
+    conc() {
+      const s = pick(pool().filter(x => x.solute));
+      const V = pick([100, 200, 250, 500]);
+      const c = pick([0.10, 0.20, 0.40, 0.50, 1.0, 2.0]);
+      const n = round(c * V / 1000, 5), m = round(n * s.M, 4);
+      const cT = c < 1 ? c.toFixed(2) : c.toFixed(1);
+      if (Math.random() < .5) return {
+        sub: s, kind: "溶質の質量 → モル濃度", point: POINT.conc,
+        html: `${s.name} ${F(s)} ${H(num(m) + " g")} を水にとかして ${H(V + " mL")} の水溶液にした。モル濃度は何 mol/L？`,
+        unit: "mol/L", answer: c,
+        wrong: [[n, "溶質の物質量(mol)で止まっているよ。溶液の体積(L)で割ろう。"], [n / V, "mL のまま割っているよ。mL ÷ 1000 で L に直してから割ろう。"], [m / (V / 1000), "質量(g)のまま体積で割っているよ。先に ÷ モル質量 で mol に直そう。"]],
+        hint: "モル濃度 = 溶質の mol ÷ 溶液の L。mL は ÷1000 して L に直そう！",
+        steps: [`${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${num(m)} ÷ ${num(s.M)} = ${num(n)} mol`), `${V} mL = ${num(V / 1000)} L`, C(`${num(n)} ÷ ${num(V / 1000)} = ${cT} mol/L`)],
+      };
+      return {
+        sub: s, kind: "モル濃度 → 溶質の質量", point: POINT.conc,
+        html: `${H(cT + " mol/L")} の${s.name} ${F(s)} 水溶液を ${H(V + " mL")} つくるには、${s.f} は何 g 必要？`,
+        unit: "g", answer: m,
+        wrong: [[c * V * s.M, "mL のまま掛けているよ。mL ÷ 1000 で L に直そう。"], [c * s.M, "体積を掛け忘れているよ。これは 1 L つくるときの質量。"], [n, W.stop]],
+        hint: "① mol = 濃度 × 体積(L)② g = mol × モル質量！",
+        steps: [`${V} mL = ${num(V / 1000)} L`, C(`${cT} × ${num(V / 1000)} = ${num(n)} mol`), `${s.f} のモル質量:${Mcalc(s)} g/mol`, C(`${num(n)} × ${num(s.M)} = ${num(m)} g`)],
+      };
+    },
+    atom() {
+      const s = pick(pool().filter(x => !x.metal && Object.values(x.comp).some(k => k >= 2)));
+      const [e, k] = pick(Object.entries(s.comp).filter(([, k]) => k >= 2));
+      const n = pick(NS), na = round(n * k, 4);
+      const atomTotal = Object.values(s.comp).reduce((a, b) => a + b, 0);
+      const allMsg = `${s.f} にふくまれるすべての原子(${atomTotal} 個分)を数えているよ。問われているのは ${e} だけ。`;
+      if (Math.random() < .5) return {
+        sub: s, kind: "原子の物質量", point: POINT.atom,
+        html: `${s.name} ${F(s)} ${H(fmtN(n) + " mol")} にふくまれる${elName[e] || e}原子 <span class="formula">${e}</span> は何 mol？`,
+        unit: "mol", answer: na,
+        wrong: [[n, `${s.f} の物質量のままだよ。${e} は 1 個の中に ${k} 個あるので × ${k}。`], [n / k, `${k} で割ってしまっているよ。${e} は分子より多いので × ${k}。`], [n * atomTotal, allMsg]],
+        hint: `${s.f} 1 個の中に ${e} は何個ある？化学式の右下の数字を見よう！`,
+        steps: [`${s.f} 1 個に ${e} 原子は ${k} 個 → ${s.f} 1 mol に ${e} は ${k} mol`, C(`${fmtN(n)} × ${k} = ${num(na)} mol`)],
+      };
+      const N = na * NA;
+      return {
+        sub: s, kind: "原子の個数", point: POINT.atom,
+        html: `${s.name} ${F(s)} ${H(fmtN(n) + " mol")} にふくまれる${elName[e] || e}原子 <span class="formula">${e}</span> は何個？`,
+        unit: "個", sci: true, answer: N,
+        wrong: [[n * NA, `これは ${s.f} 分子の個数。${e} 原子は 1 分子に ${k} 個あるので × ${k}。`], [n * atomTotal * NA, allMsg], [N * 10, W.digit]],
+        hint: `まず ${e} 原子が何 mol か(× ${k})を出してから、6.0×10²³ を掛けよう！`,
+        steps: [C(`${fmtN(n)} × ${k} = ${num(na)} mol`), C(`${num(na)} × 6.0×10<sup>23</sup> = ${sci(N)} 個`)],
+      };
+    },
+  };
+
+  const show = (p, v) => p.sci ? sci(v) : num(v);
+  function buildChoices(p) {
+    const seen = new Set([show(p, p.answer)]);
+    const out = [{ v: p.answer, ok: true }];
+    const generic = "計算のとちゅうで数がずれているよ。とき方を 1 行ずつ確かめよう。";
+    const cand = [...p.wrong, ...[2, .5, 10, .1, 3, 1.5].map(f => [p.answer * f, f === 10 || f === .1 ? "桁(10 倍・10 分の 1)がずれているよ。単位の変換や小数点の位置を確かめよう。" : generic])];
+    for (const [w, why] of cand) {
+      if (out.length === 4) break;
+      if (!isFinite(w) || w <= 0) continue;
+      const s = show(p, w);
+      if (seen.has(s) || Math.abs(w - p.answer) / p.answer < 0.05) continue;
+      seen.add(s); out.push({ v: w, ok: false, why });
+    }
+    return shuffle(out);
+  }
+
+  // ---------- 保存 ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+  let coins = store.get("molCoins", 0);
+  level = LEVELS[store.get("molLevel", "mid")] ? store.get("molLevel", "mid") : "mid"; NS = LEVELS[level].ns;
+
+  const $ = id => document.getElementById(id);
+  const stage = $("stage");
+  let round_ = [], idx = 0, cur = null, locked = false;
+
+  function say(text, mood = "happy", hintBtn = false) {
+    $("say").innerHTML = text + (hintBtn ? `<br><button class="hintbtn" type="button" id="hintBtn">ヒントを見る</button>` : "");
+    $("mouth").setAttribute("d", mood === "sad" ? "M35 58 Q40 53 45 58" : mood === "wow" ? "M36 54 Q40 62 44 54 Z" : "M35 55 Q40 60 45 55");
+    if (hintBtn) $("hintBtn").addEventListener("click", () => say(cur.hint, "happy"));
+  }
+  function renderCoins() { $("coins").textContent = coins; }
+  function renderProgress() {
+    $("progress").innerHTML = Array.from({ length: ROUND }, (_, i) => {
+      const r = round_[i];
+      return `<span class="${r && r.done ? (r.correct ? "ok" : "ng") : i === idx ? "now" : ""}"></span>`;
+    }).join("");
+  }
+
+  Object.entries(LEVELS).forEach(([id, L]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "lv lv-" + id; b.id = "lv-" + id;
+    b.innerHTML = `<span class="k">${L.label}</span><span class="d">${L.note}</span>`;
+    b.setAttribute("aria-pressed", id === level);
+    b.addEventListener("click", () => {
+      if (id === level) return;
+      level = id; NS = L.ns; store.set("molLevel", id);
+      document.querySelectorAll(".lv").forEach(x => x.setAttribute("aria-pressed", x.id === "lv-" + id));
+      startRound();
+      say(`難易度「${L.label}」で最初から始めるよ！`);
+    });
+    $("levels").appendChild(b);
+  });
+
+  function startRound() {
+    round_ = []; idx = 0;
+    ask();
+  }
+
+  function ask() {
+    const cats = LEVELS[level].cats;
+    let p, guard = 0;
+    do { const cat = pick(cats); p = GEN[cat](); p.cat = cat; guard++; }
+    while (round_.some(r => r.html === p.html) && guard < 20);
+    p.choices = buildChoices(p);
+    cur = p; round_[idx] = p; locked = false;
+    renderProgress();
+    stage.className = "card";
+    stage.innerHTML = `
+      <div class="qhead"><span class="qnum">第${idx + 1}問</span><span class="lvbadge lv-${level}">${LEVELS[level].label}</span><span class="tag">${p.kind}</span></div>
+      <p class="question">${p.html}</p>
+      <div class="choices">${p.choices.map((c, i) => `<button class="choice" type="button" id="ch${i}" data-i="${i}"><span class="no">${i + 1}</span><span class="val">${show(p, c.v)}<span class="u">${p.unit}</span></span></button>`).join("")}</div>`;
+    stage.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => answer(+b.dataset.i)));
+    say(idx === 0 ? "さあ、はじめよう！ 正しい答えを 1〜4 からえらんでね。" : pick(["よく読んで考えよう！", "単位に注目だよ。", "落ちついていこう！", "式を立ててから計算しよう。"]), "happy", true);
+  }
+
+  function answer(i) {
+    if (locked) return;
+    locked = true;
+    const c = cur.choices[i];
+    cur.done = true; cur.correct = c.ok; cur.pickedText = show(cur, c.v); cur.pickedWhy = c.why;
+    if (c.ok) { coins += 10; store.set("molCoins", coins); renderCoins(); }
+    stage.querySelectorAll(".choice").forEach((b, j) => {
+      b.disabled = true;
+      if (cur.choices[j].ok) b.classList.add("right");
+      else if (j === i) b.classList.add("picked-wrong");
+      else b.classList.add("dim");
+    });
+    const mark = document.createElement("div");
+    mark.className = "mark " + (c.ok ? "ok" : "ng");
+    mark.innerHTML = c.ok
+      ? `<svg viewBox="0 0 200 200"><circle class="draw" cx="100" cy="100" r="78" fill="none" stroke="#ff5a5f" stroke-width="22" stroke-linecap="round"/></svg><div class="word">せいかい!</div>`
+      : `<svg viewBox="0 0 200 200"><path class="draw" d="M40 40 L160 160 M160 40 L40 160" fill="none" stroke="#2f8cff" stroke-width="22" stroke-linecap="round"/></svg><div class="word">おしい!</div>`;
+    stage.appendChild(mark);
+
+    const ex = document.createElement("div");
+    ex.className = "explain";
+    ex.innerHTML = `<h3>解説 ・ 答え ${show(cur, cur.answer)} ${cur.unit}</h3>`
+      + (c.ok ? "" : `<div class="miss"><b>えらんだ答え ${show(cur, c.v)} ${cur.unit} のまちがい</b><br>${c.why}</div>`)
+      + `<div class="sub">ポイント</div><p class="pt">${cur.point}</p>`
+      + `<div class="sub">とき方</div><ol>${cur.steps.map(s => `<li>${s}</li>`).join("")}</ol>`;
+    const row = document.createElement("div");
+    row.className = "row";
+    const last = idx === ROUND - 1;
+    row.innerHTML = `<button class="btn" type="button" id="nextBtn">${last ? "結果を見る" : "つぎへ ▶"}</button>`;
+    stage.append(ex, row);
+    $("nextBtn").addEventListener("click", () => { if (last) finish(); else { idx++; ask(); } });
+    setTimeout(() => $("nextBtn") && $("nextBtn").focus({ preventScroll: true }), 50);
+    renderProgress();
+    say(c.ok ? pick(["すごい！その調子！ +10 コイン", "やったね！ +10 コイン", "かんぺき！ +10 コイン"]) : "だいじょうぶ、とき方を見てみよう。次はできるよ！", c.ok ? "wow" : "sad");
+  }
+
+  function star(on) {
+    return `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="${on ? "#ffe04d" : "#e3ecf5"}" stroke="${on ? "#e2b700" : "#c9dbea"}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+  }
+
+  function finish() {
+    const score = round_.filter(r => r.correct).length;
+    const bk = "molBest-" + level, best = Math.max(store.get(bk, 0), score); store.set(bk, best);
+    const stars = score >= 9 ? 3 : score >= 6 ? 2 : score >= 3 ? 1 : 0;
+    idx = ROUND; renderProgress();
+    stage.className = "card result";
+    stage.innerHTML = `
+      <h2>${score === ROUND ? "パーフェクト！" : score >= 7 ? "よくできました！" : "おつかれさま！"}</h2>
+      <div class="stars">${[0, 1, 2].map(i => star(i < stars)).join("")}</div>
+      <div class="score">${score}<small> / ${ROUND} 問</small></div>
+      <div style="color:var(--muted);font-weight:700">難易度「${LEVELS[level].label}」の最高:${best} 問</div>
+      <ul class="review">${round_.map((r, i) => `<li><span class="m ${r.correct ? "ok" : "ng"}">${r.correct ? "○" : "×"}</span><span>第${i + 1}問 ${r.sub.f} ${r.kind}:答え <b>${show(r, r.answer)} ${r.unit}</b>${r.correct ? "" : `(えらんだ答え ${r.pickedText})<br><span class="why">${r.pickedWhy}</span>`}</span></li>`).join("")}</ul>
+      <div class="row" style="justify-content:center"><button class="btn" type="button" id="againBtn">もう一回チャレンジ</button></div>`;
+    $("againBtn").addEventListener("click", startRound);
+    $("againBtn").focus({ preventScroll: true });
+    say(score === ROUND ? "全問正解！ きみはモル計算マスターだ！" : `${ROUND - score} 問まちがえたところを見直して、もう一回やってみよう！`, score >= 7 ? "wow" : "happy");
+  }
+
+  document.addEventListener("keydown", e => {
+    if (!locked && cur && /^[1-4]$/.test(e.key) && !e.target.closest("input")) { const b = $("ch" + (+e.key - 1)); if (b) b.click(); }
+  });
+
+  renderCoins();
+  startRound();
+})();
+</script>
+</body>
+</html>
